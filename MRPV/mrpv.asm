@@ -14,6 +14,7 @@ main:
         call generar_cadena     ; Generar cadena aleatoria de 4 caracteres
         call mostrar_menu       ; Mostrar la palabra a deletrear
         call pedir_respuestas   ; Pedir y validar respuestas
+        call mostrar_puntaje    ; Mostrar puntaje
         jmp .loop               ; Repetir indefinidamente
 
 ;-------------------------------------------------
@@ -55,6 +56,7 @@ mostrar_menu:
 pedir_respuestas:
     mov cx, 4
     mov si, cadena
+    mov byte [bandera_correcto], 1  ; Inicializar bandera como "correcto"
     .preguntar:
         push cx
         mov ah, 0x0E           ; Imprimir carácter
@@ -69,9 +71,18 @@ pedir_respuestas:
         mov di, buffer_entrada
         call leer_entrada
         call comparar_fonetica ; Validar entrada
+        jz .respuesta_correcta
+        mov byte [bandera_correcto], 0  ; Marcar como incorrecto si alguna respuesta falla
+    .respuesta_correcta:
         pop cx
         inc si
         loop .preguntar
+
+    ; Verificar si todas las respuestas fueron correctas
+    cmp byte [bandera_correcto], 1
+    jne .fin
+    inc word [puntaje]          ; Incrementar puntaje solo si todas fueron correctas
+.fin:
     ret
 
 ;-------------------------------------------------
@@ -124,16 +135,15 @@ comparar_fonetica:
     call comparar_cadenas
     jz .correcto
 
-    ; Incorrecto: mostrar 0 pts
+    ; Incorrecto
     mov si, msg_error
     call imprimir
     jmp .fin
 
 .correcto:
-    ; Correcto: mostrar 1 pt
+    ; Correcto
     mov si, msg_acierto
     call imprimir
-    inc word [puntaje]          ; Incrementar puntaje
 
 .fin:
     mov si, nueva_linea
@@ -165,6 +175,44 @@ comparar_cadenas:
     ret
 
 ;-------------------------------------------------
+; Mostrar puntaje
+mostrar_puntaje:
+    pusha
+    lea si, msg_puntaje         ; Asegurar que SI apunta a la dirección correcta
+    call imprimir
+    mov ax, [puntaje]
+    call imprimir_numero        ; Mostrar el número del puntaje
+    lea si, nueva_linea
+    call imprimir
+    popa
+    ret
+
+;-------------------------------------------------
+; Imprimir número en AX
+imprimir_numero:
+    pusha
+    mov cx, 0
+
+.convertir:
+    xor dx, dx
+    mov bx, 10
+    div bx
+    add dl, '0'
+    push dx
+    inc cx
+    test ax, ax
+    jnz .convertir
+
+.imprimir:
+    pop ax
+    mov ah, 0x0E
+    int 0x10
+    loop .imprimir
+
+    popa
+    ret
+
+;-------------------------------------------------
 ; Función para imprimir cadenas
 imprimir:
     .ciclo:
@@ -184,7 +232,9 @@ nueva_linea db 0x0D, 0x0A, 0
 cadena times 5 db 0            ; Cadena generada (4 caracteres + null)
 buffer_entrada times 16 db 0   ; Buffer para entrada del usuario
 puntaje dw 0                   ; Puntaje acumulado
+bandera_correcto db 0          ; Bandera para rastrear si todas las respuestas son correctas
 
+;-------------------------------------------------
 ; Tabla fonética
 tabla_fonetica:
     ; Letras a-z
@@ -194,7 +244,8 @@ tabla_fonetica:
     ; Números 0-9
     dw fon_0, fon_1, fon_2, fon_3, fon_4, fon_5, fon_6, fon_7, fon_8, fon_9
 
-; Palabras fonéticas (en minúsculas)
+;-------------------------------------------------
+; Palabras fonéticas
 fon_a: db "alfa",0
 fon_b: db "bravo",0
 fon_c: db "charlie",0
@@ -224,14 +275,15 @@ fon_z: db "zulu",0
 fon_0: db "zero",0
 fon_1: db "one",0
 fon_2: db "two",0
-fon_3: db "tree",0
-fon_4: db "fower",0
-fon_5: db "fife",0
-fon_6: db "six",0
+fon_3: db "three",0
+fon_4: db "four",0
+fon_5: db "five",0
+fon_6: db "six",0       
 fon_7: db "seven",0
 fon_8: db "eight",0
-fon_9: db "niner",0
+fon_9: db "nine",0
 
 ; Mensajes
 msg_acierto: db "1 pt",0
 msg_error: db "0 pts",0
+msg_puntaje: db "Puntaje total: ",0
