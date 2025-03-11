@@ -133,21 +133,24 @@ comparar_fonetica:
     ; Comparar entrada del usuario con la palabra esperada
     mov di, buffer_entrada
     call comparar_cadenas
+    pushf                       ; Guardar estado de las banderas (ZF)
+    
     jz .correcto
 
     ; Incorrecto
     mov si, msg_error
     call imprimir
-    jmp .fin
+    jmp .fin_impresion
 
 .correcto:
     ; Correcto
     mov si, msg_acierto
     call imprimir
 
-.fin:
+.fin_impresion:
     mov si, nueva_linea
     call imprimir
+    popf                        ; Restaurar banderas (ZF)
     popa
     ret
 
