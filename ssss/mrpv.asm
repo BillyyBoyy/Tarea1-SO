@@ -56,6 +56,7 @@ mostrar_menu:
 pedir_respuestas:
     mov cx, 4
     mov si, cadena
+    mov byte [bandera_correcto], 1  ; Inicializar bandera como "correcto"
     .preguntar:
         push cx
         mov ah, 0x0E           ; Imprimir carácter
@@ -70,9 +71,18 @@ pedir_respuestas:
         mov di, buffer_entrada
         call leer_entrada
         call comparar_fonetica ; Validar entrada
+        jz .respuesta_correcta
+        mov byte [bandera_correcto], 0  ; Marcar como incorrecto si alguna respuesta falla
+    .respuesta_correcta:
         pop cx
         inc si
         loop .preguntar
+
+    ; Verificar si todas las respuestas fueron correctas
+    cmp byte [bandera_correcto], 1
+    jne .fin
+    inc word [puntaje]          ; Incrementar puntaje solo si todas fueron correctas
+.fin:
     ret
 
 ;-------------------------------------------------
@@ -123,22 +133,24 @@ comparar_fonetica:
     ; Comparar entrada del usuario con la palabra esperada
     mov di, buffer_entrada
     call comparar_cadenas
+    pushf                       ; Guardar estado de las banderas (ZF)
+    
     jz .correcto
 
-    ; Incorrecto: mostrar 0 pts
+    ; Incorrecto
     mov si, msg_error
     call imprimir
-    jmp .fin
+    jmp .fin_impresion
 
 .correcto:
-    ; Correcto: mostrar 1 pt
+    ; Correcto
     mov si, msg_acierto
     call imprimir
-    inc word [puntaje]          ; Incrementar puntaje
 
-.fin:
+.fin_impresion:
     mov si, nueva_linea
     call imprimir
+    popf                        ; Restaurar banderas (ZF)
     popa
     ret
 
@@ -223,6 +235,7 @@ nueva_linea db 0x0D, 0x0A, 0
 cadena times 5 db 0            ; Cadena generada (4 caracteres + null)
 buffer_entrada times 16 db 0   ; Buffer para entrada del usuario
 puntaje dw 0                   ; Puntaje acumulado
+bandera_correcto db 0          ; Bandera para rastrear si todas las respuestas son correctas
 
 ;-------------------------------------------------
 ; Tabla fonética
@@ -273,9 +286,7 @@ fon_7: db "seven",0
 fon_8: db "eight",0
 fon_9: db "nine",0
 
-
 ; Mensajes
 msg_acierto: db "1 pt",0
 msg_error: db "0 pts",0
 msg_puntaje: db "Puntaje total: ",0
-
