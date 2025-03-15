@@ -1,12 +1,20 @@
+; Tarea1-SO
+
+; Nombre: William Gerardo Alfaro Quiros
+
+; Carné: 2022437996
+
+
+
 
 [org 0x7C00]
 [bits 16]
 
 start:
     ; Configurar segmentos
-    xor ax, ax
-    mov ds, ax
-    mov es, ax
+    xor ax, ax         ; Segmento de datos
+    mov ds, ax        ; DS = 0
+    mov es, ax       ; ES = 0
 
     ; Cargar MRPV desde el segundo sector (sector 2)
     mov ah, 0x02        ; Función de lectura de disco
