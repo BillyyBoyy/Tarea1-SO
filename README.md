@@ -64,6 +64,8 @@ Tarea1-SO/
 │
 ├── .git/                # Control de versiones
 ├── README.md            # Instrucciones del proyecto
+├── Documentación/       # Documentación del proyecto
+│   ├── diseño.md        # Diseño del sistema
 └── MRPV/                
     ├── boot.asm         # Código fuente del bootloader
     ├── boot.bin         # Binario del bootloader
