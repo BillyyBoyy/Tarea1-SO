@@ -62,16 +62,17 @@ qemu-system-x86_64 -drive format=raw,file=disk.img
 ```
 Tarea1-SO/
 │
-├── .git/                # Control de versiones
-├── README.md            # Instrucciones del proyecto
-├── Documentación/       # Documentación del proyecto
-│   ├── diseño.md        # Diseño del sistema
+├── .git/                         # Control de versiones
+├── README.md                     # Instrucciones del proyecto
+├── Documentación/                
+│   ├── 2022437996_tarea1         # Archivo de documentación
+│   ├── LaTexSourceFiles.zip      # Archivos fuente de documentación
 └── MRPV/                
-    ├── boot.asm         # Código fuente del bootloader
-    ├── boot.bin         # Binario del bootloader
-    ├── mrpv.asm         # Código fuente del programa MRPV
-    ├── mrpv.bin         # Binario del programa MRPV
-    └── disk.img         # Imagen de disco
+    ├── boot.asm                  # Código fuente del bootloader
+    ├── boot.bin                  # Binario del bootloader
+    ├── mrpv.asm                  # Código fuente del programa MRPV
+    ├── mrpv.bin                  # Binario del programa MRPV
+    └── disk.img                  # Imagen de disco
 
 ```
 
